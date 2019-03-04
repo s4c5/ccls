@@ -560,6 +560,7 @@ void LaunchStdin() {
       if (should_exit)
         break;
     }
+    quit.store(true, std::memory_order_relaxed);
     ThreadLeave();
   }).detach();
 }
@@ -666,10 +667,10 @@ void MainLoop() {
       }
     }
 
+    if (quit.load(std::memory_order_relaxed))
+      break;
     if (did_work) {
       has_indexed |= indexed;
-      if (quit.load(std::memory_order_relaxed))
-        break;
     } else {
       if (has_indexed) {
         FreeUnusedMemory();
